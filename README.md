@@ -27,6 +27,7 @@ basketball_sim/
     train_world_model.py       World-model training and validation
     build_momentum_latents.py  Latent extraction for classification
     train_momentum_xgb.py      XGBoost momentum training
+    tune_momentum_xgb.py       Optuna search for FP-aware XGBoost tuning
   serving/
     world_model_server.py      Local HTTP inference server
 
@@ -178,16 +179,22 @@ Train XGBoost:
 .venv/bin/python -m basketball_sim.models.train_momentum_xgb --latents-path models/momentum_xgb/momentum_latents.npz --metadata-path models/momentum_xgb/momentum_latents_config.json --output-dir models/momentum_xgb --xgb-rounds 450 --early-stopping-rounds 35 --threshold best-f1
 ```
 
-Current reference classifier:
+Tune XGBoost with Optuna for fewer false positives:
+
+```bash
+.venv/bin/python -m basketball_sim.models.tune_momentum_xgb --latents-path models/momentum_xgb/momentum_latents.npz --metadata-path models/momentum_xgb/momentum_latents_config.json --output-dir models/momentum_xgb --trials 40 --xgb-rounds 700 --early-stopping-rounds 45 --min-recall 0.60 --beta 0.45 --fp-penalty 0.35
+```
+
+Current Optuna-tuned reference classifier:
 
 ```txt
 latent_dim: 192
-validation AUC: 0.8869
-threshold: 0.545
-validation accuracy: 0.8044
-validation precision: 0.4916
-validation recall: 0.8408
-validation F1: 0.6205
+threshold: 0.585
+validation accuracy: 0.8783
+validation precision: 0.7135
+validation recall: 0.6013
+validation F1: 0.6526
+validation confusion: TP=2187, TN=14613, FP=878, FN=1450
 ```
 
 ## Backward Compatibility
