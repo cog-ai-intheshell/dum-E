@@ -1,0 +1,185 @@
+:root {
+  color-scheme: dark;
+
+  /* Core dark-mode palette requested by the project. */
+  --bg1: #191919;
+  --bg2: #222222;
+  --primary: #5D71FC;
+  --blue: #5D71FC;
+  --blue-dark: #5D71FC;
+
+  --page: var(--bg1);
+  --panel: var(--bg2);
+  --sidebar: var(--bg2);
+  --scene-bg: var(--bg1);
+  --canvas-bg: var(--bg1);
+
+  --ink: #f8f8f8;
+  --text: #f8f8f8;
+  --muted: rgba(248, 248, 248, 0.62);
+
+  --line: transparent;
+  --subtle-line: transparent;
+  --field-border: transparent;
+  --table-border: transparent;
+
+  --field-bg: var(--bg1);
+  --control-bg: var(--bg1);
+  --control-bg-hover: var(--bg2);
+  --sim-controls-bg: var(--bg2);
+  --control-text: var(--primary);
+  --primary-button-text: #f8f8f8;
+
+  --primary-gradient: linear-gradient(180deg, var(--primary) 0%, var(--primary) 100%);
+  --primary-gradient-hover: linear-gradient(180deg, var(--primary) 0%, var(--primary) 100%);
+  --primary-shadow: none;
+  --card-shadow: none;
+  --glow-orange: none;
+
+  --red: #EB5757;
+  --green: #27AE60;
+
+  --canvas-text: #f8f8f8;
+  --canvas-label: rgba(248, 248, 248, 0.74);
+  --canvas-grid: rgba(248, 248, 248, 0.08);
+  --canvas-axis: rgba(248, 248, 248, 0.42);
+  --canvas-box: rgba(248, 248, 248, 0.12);
+  --canvas-backboard: rgba(248, 248, 248, 0.52);
+  --canvas-pole: rgba(248, 248, 248, 0.76);
+  --canvas-hoop: var(--primary);
+  --canvas-hoop-glow: none;
+  --canvas-net: rgba(248, 248, 248, 0.48);
+  --canvas-net-soft: rgba(248, 248, 248, 0.22);
+
+  --canvas-player-shoe: rgba(248, 248, 248, 0.72);
+  --canvas-player-short: var(--primary);
+  --canvas-player-shirt: var(--primary);
+  --canvas-player-limb: rgba(248, 248, 248, 0.72);
+  --canvas-player-skin: rgba(248, 248, 248, 0.86);
+  --canvas-player-skin-stroke: transparent;
+
+  --canvas-ball: #fca24c;
+  --canvas-ball-stroke: #f0f921;
+  --canvas-drag: var(--primary);
+  --canvas-ball-glow:
+    0 0 10px rgba(248, 149, 64, 0.7),
+    0 0 28px rgba(240, 249, 33, 0.35);
+
+  --canvas-trajectory: #f89540;
+  --canvas-trajectory-dot: #f0f921;
+  --canvas-trajectory-stroke: #cc4778;
+  --trajectory-glow:
+    0 0 8px rgba(248, 149, 64, 0.6),
+    0 0 24px rgba(248, 149, 64, 0.35);
+
+  --wind-low: #0d0887;
+  --wind-mid: #7e03a8;
+  --wind-high: #cc4778;
+  --wind-warm: #ff2a00;
+  --wind-hot: #f89540;
+  --wind-max: #f0f921;
+
+  --table-alt: var(--bg1);
+  --colorbar-border: transparent;
+  --colorbar-tick: rgba(248, 248, 248, 0.62);
+}
+
+body[data-theme="dark"] {
+  background: var(--page);
+}
+
+body[data-theme="dark"] .brand h1,
+body[data-theme="dark"] .sim-header h2,
+body[data-theme="dark"] .data-card h2,
+body[data-theme="dark"] .legend-card h2,
+body[data-theme="dark"] .control-section h2 {
+  font-weight: 800;
+}
+
+body[data-theme="dark"] .control-section h2,
+body[data-theme="dark"] .legend-card h2,
+body[data-theme="dark"] .data-card h2 {
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+body[data-theme="dark"] .sidebar,
+body[data-theme="dark"] .simulation-card,
+body[data-theme="dark"] .data-card,
+body[data-theme="dark"] .legend-card,
+body[data-theme="dark"] .select-field select,
+body[data-theme="dark"] .header-button,
+body[data-theme="dark"] .sim-controls button,
+body[data-theme="dark"] .download-button,
+body[data-theme="dark"] .view-menu-panel,
+body[data-theme="dark"] .view-menu-panel button {
+  border: 0;
+  background: var(--panel);
+  box-shadow: none;
+}
+
+body[data-theme="dark"] .select-field select {
+  background: var(--bg1);
+}
+
+body[data-theme="dark"] .control-section,
+body[data-theme="dark"] .sim-header,
+body[data-theme="dark"] .sim-controls,
+body[data-theme="dark"] .data-card h2,
+body[data-theme="dark"] .card-header,
+body[data-theme="dark"] .metrics-table td,
+body[data-theme="dark"] .metrics-table td:first-child,
+body[data-theme="dark"] .csv-table th,
+body[data-theme="dark"] .csv-table td {
+  border: 0;
+}
+
+body[data-theme="dark"] .select-field select,
+body[data-theme="dark"] .header-button,
+body[data-theme="dark"] .sim-controls button,
+body[data-theme="dark"] .download-button,
+body[data-theme="dark"] .wind-viz-button[aria-pressed="true"] {
+  border-color: transparent;
+}
+
+body[data-theme="dark"] .wind-viz-button[aria-pressed="true"] {
+  color: var(--text);
+  background: var(--control-bg-hover);
+}
+
+body[data-theme="dark"] .header-button:hover,
+body[data-theme="dark"] .sim-controls button:hover,
+body[data-theme="dark"] .download-button:hover,
+body[data-theme="dark"] .view-menu-panel button:hover {
+  border-color: transparent;
+  color: var(--text);
+  background: var(--control-bg-hover);
+  box-shadow: none;
+}
+
+body[data-theme="dark"] .primary-button:hover {
+  filter: brightness(1.05);
+  box-shadow: none;
+}
+
+body[data-theme="dark"] .scene-frame {
+  background: var(--scene-bg);
+}
+
+body[data-theme="dark"] .swatch-0 { background: #4fd1b2; }
+body[data-theme="dark"] .swatch-1 { background: #1ca7ec; }
+body[data-theme="dark"] .swatch-2 { background: #b517d7; }
+body[data-theme="dark"] .swatch-3 { background: #e0d000; }
+body[data-theme="dark"] .swatch-4 { background: #0c7bdc; }
+body[data-theme="dark"] .swatch-5 { background: #ff9b22; }
+body[data-theme="dark"] .swatch-6 { background: #ff6b00; }
+body[data-theme="dark"] .swatch-7 { background: #f97316; }
+body[data-theme="dark"] .swatch-8 { background: #27AE60; }
+body[data-theme="dark"] .swatch-9 { background: #f0f921; }
+body[data-theme="dark"] .swatch-10 { background: #EB5757; }
+body[data-theme="dark"] .swatch-11 { background: #f89540; }
+body[data-theme="dark"] .swatch-12 { background: #cc4778; }
+body[data-theme="dark"] .swatch-13 { background: #7e03a8; }
+body[data-theme="dark"] .swatch-14 { background: #ff2a00; }
+body[data-theme="dark"] .swatch-15 { background: #f0f921; }
