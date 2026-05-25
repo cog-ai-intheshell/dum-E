@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DUM-E Catch Playground</title>
+    <link rel="stylesheet" href="styles.css">
+    <link id="lightTheme" rel="stylesheet" href="light-mode.css">
+    <link id="darkTheme" rel="stylesheet" href="dark-mode.css" disabled>
+  </head>
+  <body data-theme="light">
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Control panel">
+        <div class="sidebar-inner">
+          <header class="brand">
+            <h1>DUM-E Catch Playground</h1>
+            <p>AI training: caught / missed</p>
+          </header>
+
+          <section class="control-section">
+            <h2>THROW SETTINGS</h2>
+
+            <label class="slider-field" for="initialForce">
+              <span>Initial force</span>
+              <output id="initialForceValue">12.0</output>
+              <input id="initialForce" type="range" min="1" max="30" step="0.1" value="12">
+            </label>
+
+            <label class="slider-field" for="verticalAngle">
+              <span>Vertical angle (°)</span>
+              <output id="verticalAngleValue">45.0</output>
+              <input id="verticalAngle" type="range" min="5" max="80" step="0.5" value="45">
+            </label>
+
+            <label class="slider-field" for="horizontalAngle">
+              <span>Horizontal angle (°)</span>
+              <output id="horizontalAngleValue">0.0</output>
+              <input id="horizontalAngle" type="range" min="-45" max="45" step="0.5" value="0">
+            </label>
+
+            <label class="slider-field" for="distanceToHoop">
+              <span>Distance to DUM-E (m)</span>
+              <output id="distanceToHoopValue">6.0</output>
+              <input id="distanceToHoop" type="range" min="1" max="12" step="0.1" value="6">
+            </label>
+
+            <label class="slider-field" for="boyHeight">
+              <span>Child height (m)</span>
+              <output id="boyHeightValue">1.75</output>
+              <input id="boyHeight" type="range" min="1.20" max="2.20" step="0.01" value="1.75">
+            </label>
+
+            <label class="slider-field" for="ballMass">
+              <span>Ball weight (kg)</span>
+              <output id="ballMassValue">0.62</output>
+              <input id="ballMass" type="range" min="0.30" max="1.20" step="0.01" value="0.62">
+            </label>
+
+            <label class="slider-field" for="hoopHeight">
+              <span>Catch height (m)</span>
+              <output id="hoopHeightValue">3.05</output>
+              <input id="hoopHeight" type="range" min="2.0" max="4.0" step="0.01" value="3.05">
+            </label>
+          </section>
+
+          <section class="control-section">
+            <h2>WIND</h2>
+
+            <label class="select-field" for="windRegime">
+              <span>Wind regime</span>
+              <select id="windRegime">
+                <option value="0">no wind</option>
+                <option value="1" selected>constant wind</option>
+                <option value="2">random wind</option>
+                <option value="3">Markov wind</option>
+                <option value="4">cyclic wind</option>
+                <option value="5">gusts</option>
+                <option value="6">sudden shift</option>
+                <option value="7">mean reversion</option>
+                <option value="8">volatility clustering</option>
+                <option value="9">jump / news shock</option>
+                <option value="10">pump &amp; fade</option>
+                <option value="11">cascade liquidations</option>
+                <option value="12">liquidity wall</option>
+                <option value="13">squeeze breakout</option>
+                <option value="14">hidden regime switching</option>
+                <option value="15">chaotic wind</option>
+              </select>
+            </label>
+
+            <label class="toggle-field" for="windCoupling">
+              <span>Spatial coupling x,y,z</span>
+              <input id="windCoupling" type="checkbox" checked>
+            </label>
+
+            <label class="slider-field" for="windStrength">
+              <span>Wind strength</span>
+              <output id="windStrengthValue">4.0</output>
+              <input id="windStrength" type="range" min="0" max="20" step="0.1" value="4">
+            </label>
+
+            <label class="slider-field" for="windOrientation">
+              <span>Horizontal wind orientation (°)</span>
+              <output id="windOrientationValue">45.0</output>
+              <input id="windOrientation" type="range" min="0" max="360" step="1" value="45">
+            </label>
+
+            <label class="slider-field" for="windVerticalOrientation">
+              <span>Vertical wind orientation (°)</span>
+              <output id="windVerticalOrientationValue">0.0</output>
+              <input id="windVerticalOrientation" type="range" min="-90" max="90" step="1" value="0">
+            </label>
+          </section>
+
+          <section class="control-section">
+            <h2>PHYSICS</h2>
+            <label class="slider-field" for="dragCoeff">
+              <span>Drag coefficient</span>
+              <output id="dragCoeffValue">0.020</output>
+              <input id="dragCoeff" type="range" min="0" max="0.20" step="0.005" value="0.02">
+            </label>
+
+            <label class="toggle-field" for="showDragVector">
+              <span>Show drag vector</span>
+              <input id="showDragVector" type="checkbox" checked>
+            </label>
+          </section>
+
+          <button id="goButton" class="primary-button" type="button">GO</button>
+
+          <section class="legend-card" aria-label="Wind regime legend">
+            <h2>WIND REGIME</h2>
+            <p><i class="swatch swatch-0"></i>0 : no wind</p>
+            <p><i class="swatch swatch-1"></i>1 : constant wind</p>
+            <p><i class="swatch swatch-2"></i>2 : random wind</p>
+            <p><i class="swatch swatch-3"></i>3 : Markov wind</p>
+            <p><i class="swatch swatch-4"></i>4 : cyclic wind</p>
+            <p><i class="swatch swatch-5"></i>5 : gusts</p>
+            <p><i class="swatch swatch-6"></i>6 : sudden shift</p>
+            <p><i class="swatch swatch-7"></i>7 : mean reversion</p>
+            <p><i class="swatch swatch-8"></i>8 : volatility clustering</p>
+            <p><i class="swatch swatch-9"></i>9 : jump / news shock</p>
+            <p><i class="swatch swatch-10"></i>10 : pump &amp; fade</p>
+            <p><i class="swatch swatch-11"></i>11 : cascade liquidations</p>
+            <p><i class="swatch swatch-12"></i>12 : liquidity wall</p>
+            <p><i class="swatch swatch-13"></i>13 : squeeze breakout</p>
+            <p><i class="swatch swatch-14"></i>14 : hidden regime switching</p>
+            <p><i class="swatch swatch-15"></i>15 : chaotic wind</p>
+          </section>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <section class="simulation-card">
+          <header class="sim-header">
+            <div class="header-actions">
+              <a id="aiCamerasLink" class="header-button header-link" href="ai-cameras.html">AI views</a>
+              <button id="resetCamera" class="header-button" type="button">Reset view</button>
+              <button id="windVizToggle" class="header-button wind-viz-button" type="button" aria-pressed="false" title="Switch to field map">Field</button>
+              <button id="worldModelToggle" class="header-button world-model-button" type="button" aria-label="Show World Model predictions" aria-pressed="false" title="Show World Model predictions">WM</button>
+              <button id="themeToggle" class="header-button theme-toggle-button" type="button" aria-label="Enable dark mode" aria-pressed="false" title="Enable dark mode">☾</button>
+              <div class="view-menu">
+                <button id="viewCubeToggle" class="header-button theme-toggle-button view-cube-button" type="button" aria-label="Choose a view face" aria-expanded="false" aria-controls="viewCubeMenu" title="Choose a view">
+                  <span class="view-cube-icon" aria-hidden="true"></span>
+                </button>
+                <div id="viewCubeMenu" class="view-menu-panel" hidden>
+                  <button type="button" data-view="profile">Profile</button>
+                  <button type="button" data-view="top">Top</button>
+                  <button type="button" data-view="front">Front</button>
+                  <button type="button" data-view="back">Back</button>
+                  <button type="button" data-view="left">Left</button>
+                  <button type="button" data-view="right">Right</button>
+                </div>
+              </div>
+            </div>
+            <h2>Result: <strong id="resultTitle" class="result-fail">MISSED</strong></h2>
+            <p id="timeTitle">t = 0.00 s &nbsp; (timestep 0 / 250)</p>
+          </header>
+
+          <div class="scene-frame">
+            <canvas id="sceneCanvas" aria-label="3D throw simulation toward DUM-E"></canvas>
+          </div>
+
+          <div class="sim-controls">
+            <button id="playButton" class="playback-button" type="button" data-mode="play" aria-label="Play" title="Play"></button>
+            <button id="stepBackButton" class="step-button step-back-button" type="button" aria-label="Previous frame" title="Previous frame"></button>
+            <button id="stepForwardButton" class="step-button step-forward-button" type="button" aria-label="Next frame" title="Next frame"></button>
+            <input id="timeSlider" type="range" min="0" max="0" step="1" value="0" aria-label="Time slider">
+          </div>
+        </section>
+
+        <section class="bottom-grid">
+          <article class="data-card results-card">
+            <h2>RESULTS</h2>
+            <table class="metrics-table">
+              <tbody id="resultsBody"></tbody>
+            </table>
+          </article>
+
+          <article class="data-card csv-card">
+            <div class="card-header">
+              <h2>TRAJECTORY.CSV PREVIEW</h2>
+            </div>
+            <div class="table-wrap">
+              <table class="csv-table" id="csvPreview"></table>
+            </div>
+            <div class="download-row">
+              <button class="download-button secondary-download" type="button" data-csv-download="shots">shots.csv</button>
+              <button class="download-button secondary-download" type="button" data-csv-download="trajectory">trajectory.csv</button>
+              <button class="download-button secondary-download" type="button" data-csv-download="wind_field">wind_field.csv</button>
+              <button class="download-button secondary-download" type="button" data-csv-download="labels">labels.csv</button>
+              <button id="downloadCsv" class="download-button icon-download-button" type="button" aria-label="Download all 4 CSV files" title="Download all 4 CSV files"></button>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

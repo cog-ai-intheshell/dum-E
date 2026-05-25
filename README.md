@@ -1,40 +1,24 @@
-# Basketball Shot Simulator
+# DUM-E Catch Playground
 
-A local 3D basketball-shot simulator with deterministic physics, wind regimes, dataset export, a Temporal Transformer world model, and an XGBoost momentum classifier trained on world-model latents.
+A local playground for generating synthetic DUM-E catch data, training a World Model, training a robot-arm controller on top of it, and visualizing predictions in the browser.
 
-The browser app runs from static files. The ML stack is organized as a Python package so dataset generation, model training, latent extraction, and serving stay separated.
-
-## Project Layout
+## Architecture
 
 ```txt
-index.html                     Browser simulator entry point
-app.js                         Main simulator and UI logic
-styles.css                     Shared UI styles
-ai-cameras.html                Headless rendering target for dataset frames
-ai-cameras.js                  Camera/rendering logic for AI views
-dataset_builder/render_frames.js
-                               PNG renderer for frames_manifest.csv
+interface/              Browser UI and canvas simulation.
+dataset_generation/     Synthetic throw physics, wind, DUM-E catch labels, dataset tools.
+model/                  Feature contracts, kinematics, architectures, and training scripts.
+server/                 Local HTTP inference server used by the WM button.
+model/artifacts/        Local trained weights, gitignored.
+```
 
-basketball_sim/
-  dataset/
-    config.py                  Default dataset configuration
-    config_test.py             Tiny smoke-test configuration
-    grid.py                    Parameter-grid enumeration and summaries
-    generate.py                CSV and frame-manifest generation
-  models/
-    features.py                Shared feature/scaler contracts
-    world_model.py             Temporal Transformer architecture
-    train_world_model.py       World-model training and validation
-    build_momentum_latents.py  Latent extraction for classification
-    train_momentum_xgb.py      XGBoost momentum training
-    tune_momentum_xgb.py       Optuna search for FP-aware XGBoost tuning
-  serving/
-    world_model_server.py      Local HTTP inference server
+The separation rule is simple:
 
-dataset_builder/*.py           Backward-compatible wrappers
-live_world_model_server.py     Backward-compatible server wrapper
-models/                        Trained artifacts, gitignored
-generated_dataset*/            Generated datasets, gitignored
+```txt
+interface -> visualizes and sends /predict requests
+dataset_generation -> creates trajectories and training windows
+model -> defines and trains neural architectures
+server -> loads artifacts and answers browser predictions
 ```
 
 ## Setup
@@ -44,186 +28,95 @@ python3.11 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 ```
 
-## Run The App
+## Interface
 
-Open `index.html` directly in a browser or serve the folder with any static server.
-
-To enable live world-model predictions and momentum probabilities:
-
-```bash
-.venv/bin/python -m basketball_sim.serving.world_model_server --model-dir models/world_model --momentum-model models/momentum_xgb/momentum_xgb.json --port 8765
-```
-
-The `WM` button in the browser sends the current trajectory history to the local server, draws future predicted positions in blue, and shows the XGBoost momentum probability when the classifier artifact is available.
-
-## Physics Model
-
-The shot is integrated with fixed-step RK4 until ground impact or `MAX_STEPS`.
+Open the root `index.html`, which redirects to `interface/index.html`, or open the interface directly:
 
 ```txt
-r(t) = [x, y, z]
-v(t) = [vx, vy, vz]
-W(x, y, z, t) = [wind_x, wind_y, wind_z]
-
-dr/dt = v
-dv/dt = [0, 0, -g] - (drag_coeff / ball_mass) * ||v - W|| * (v - W)
+interface/index.html
 ```
 
-Drag uses the relative ball-air velocity, not absolute ball velocity. Wind direction uses horizontal azimuth plus vertical elevation.
+The UI works without the server. When the server is running, the `WM` button overlays predicted ball states and DUM-E ghost arms.
 
 ## Dataset Generation
 
-Count the dataset grid:
-
-```bash
-.venv/bin/python -m basketball_sim.dataset.grid --config dataset_config
-```
-
-Generate CSV files and a frame manifest:
-
-```bash
-.venv/bin/python -m basketball_sim.dataset.generate --config dataset_config --output-dir generated_dataset --max-shots 10
-```
-
-Render PNG frames from the exact `ai-cameras.html` view:
-
-```bash
-node dataset_builder/render_frames.js --dataset-dir generated_dataset
-```
-
-Tiny smoke dataset:
-
-```bash
-.venv/bin/python -m basketball_sim.dataset.config_test
-.venv/bin/python -m basketball_sim.dataset.grid --config dataset_config_test
-.venv/bin/python -m basketball_sim.dataset.generate --config dataset_config_test --output-dir generated_dataset_config_test --max-shots 0 --frame-stride 250
-```
-
-The generated dataset contains:
+The current training dataset is generated programmatically by:
 
 ```txt
-shots.csv
-trajectory.csv
-wind_field.csv
-labels.csv
-frames_manifest.csv
+dataset_generation/synthetic.py
 ```
 
-## World Model
+It contains the synthetic throw simulator, wind regimes, DUM-E catch labels, and window builders used by training.
 
-The world model is an encoder-only Temporal Transformer:
+Render AI camera frames from a generated manifest if needed:
+
+```bash
+node dataset_generation/render_frames.js --dataset-dir generated_dataset
+```
+
+## Train World Model
+
+```bash
+.venv/bin/python -m model.training.train_world_model --shots 800 --epochs 14 --output-dir model/artifacts
+```
+
+Fast smoke run:
+
+```bash
+.venv/bin/python -m model.training.train_world_model --shots 12 --epochs 1 --output-dir /tmp/dum_e_model_smoke
+```
+
+## Train Controller
+
+The controller uses the frozen World Model and learns DUM-E joint motion over `base`, `coude`, and `poignet`.
+
+```bash
+.venv/bin/python -m model.training.train_catch_controller --world-model-path model/artifacts/dum_e_world_model.pt --shots 500 --epochs 8 --output-dir model/artifacts
+```
+
+Fast smoke run:
+
+```bash
+.venv/bin/python -m model.training.train_catch_controller --shots 12 --epochs 1 --max-windows-per-shot 4 --output-dir /tmp/dum_e_controller_smoke
+```
+
+## Serve Predictions
+
+One-command launcher:
+
+```bash
+./start_server.sh
+```
+
+Stop it with `Ctrl+C`.
+
+Equivalent explicit command:
+
+```bash
+.venv/bin/python -m server.server --model-path model/artifacts/dum_e_world_model.pt --controller-path model/artifacts/dum_e_catch_controller.pt --port 8765
+```
+sinon:
+```
+cd Desktop/dum-e/dum-E
+./start_server.sh
+```
+
+Endpoint used by the browser:
 
 ```txt
-history[t-k:t] + physical context -> latent state -> positions[t+1:t+H]
+POST http://127.0.0.1:8765/predict
 ```
 
-It predicts future positions, not the make/miss label. Validation can split by full unseen shots and report RMSE by horizon.
-
-Smoke training:
-
-```bash
-.venv/bin/python -m basketball_sim.models.train_world_model --config dataset_config_test --max-shots 2 --epochs 1 --history-steps 6 --horizon-steps 8 --d-model 48 --num-heads 12 --num-layers 1 --output-dir models/world_model_smoke
-```
-
-Larger training run:
-
-```bash
-.venv/bin/python -m basketball_sim.models.train_world_model --config dataset_config --max-shots 4500 --epochs 6 --history-steps 12 --horizon-steps 30 --d-model 192 --num-heads 12 --num-layers 6 --batch-size 256 --augmentation mixed --augmented-fraction 0.85 --min-label1-fraction 0.20 --candidate-limit 45000 --split-by shot --metric-horizons 1,5,10,30 --output-dir models/world_model
-```
-
-Important training options:
-
-```txt
---augmentation mixed          Mix grid shots with continuous synthetic shots.
---min-label1-fraction 0.20    Keep at least 20% made-shot labels when possible.
---split-by shot               Validate on full shots never seen during training.
---metric-horizons 1,5,10,30   Report RMSE at selected forecast horizons.
-```
-
-Current reference run:
-
-```txt
-shots: 4500
-label 1 shots: 900 (20.0%)
-windows: 190739
-validation split: full unseen shots
-t+1 RMSE: 0.0647 m
-t+5 RMSE: 0.0570 m
-t+10 RMSE: 0.0615 m
-t+30 RMSE: 0.1270 m
-```
-
-## Momentum Classifier
-
-Definition used in this project:
-
-```txt
-momentum = 1 when the shot is made
-momentum = 0 otherwise
-```
-
-The XGBoost classifier does not consume raw simulator features directly. It receives the latent vector produced by the Temporal Transformer:
-
-```txt
-history + context -> world_model.encode(...) -> latent -> XGBoost -> P(momentum)
-```
-
-Extract latents:
-
-```bash
-.venv/bin/python -m basketball_sim.models.build_momentum_latents --config dataset_config --world-model-dir models/world_model --output-dir models/momentum_xgb --max-shots 4500 --augmentation mixed --augmented-fraction 0.85 --min-label1-fraction 0.20 --candidate-limit 45000
-```
-
-Train XGBoost:
-
-```bash
-.venv/bin/python -m basketball_sim.models.train_momentum_xgb --latents-path models/momentum_xgb/momentum_latents.npz --metadata-path models/momentum_xgb/momentum_latents_config.json --output-dir models/momentum_xgb --xgb-rounds 450 --early-stopping-rounds 35 --threshold best-f1
-```
-
-Tune XGBoost with Optuna for fewer false positives:
-
-```bash
-.venv/bin/python -m basketball_sim.models.tune_momentum_xgb --latents-path models/momentum_xgb/momentum_latents.npz --metadata-path models/momentum_xgb/momentum_latents_config.json --output-dir models/momentum_xgb --trials 40 --xgb-rounds 700 --early-stopping-rounds 45 --min-recall 0.60 --beta 0.45 --fp-penalty 0.35
-```
-
-Current Optuna-tuned reference classifier:
-
-```txt
-latent_dim: 192
-threshold: 0.650
-validation accuracy: 0.8651
-validation precision: 0.7326
-validation recall: 0.6089
-validation F1: 0.6650
-validation confusion: TP=3822, TN=20877, FP=1395, FN=2455
-```
-
-## Backward Compatibility
-
-Old commands still work through thin wrappers:
-
-```bash
-.venv/bin/python dataset_builder/train_world_model.py --config dataset_config_test
-.venv/bin/python live_world_model_server.py --model-dir models/world_model
-```
-
-Prefer the package commands for new work:
-
-```bash
-.venv/bin/python -m basketball_sim.models.train_world_model
-.venv/bin/python -m basketball_sim.serving.world_model_server
-```
+If artifacts are missing, the server still responds with deterministic fallback predictions so the interface can keep testing the contract.
 
 ## Git Notes
 
-The repository is prepared to keep source code in Git while excluding heavy local artifacts:
+Heavy local outputs are ignored:
 
 ```txt
 .venv/
-models/
+model/artifacts/
 generated_dataset*/
 node_modules/
 __pycache__/
 ```
-
-Before pushing, regenerate model artifacts locally if needed, but do not commit trained weights or generated datasets unless you intentionally move them to a release or external storage.

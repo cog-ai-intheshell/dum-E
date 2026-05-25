@@ -1,0 +1,8 @@
+.git
+.venv/
+model/artifacts/
+generated_dataset*/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.DS_Store

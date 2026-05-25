@@ -1,5 +1,5 @@
 .venv/
-/models/
+/model/artifacts/
 /generated_dataset*/
 __pycache__/
 **/__pycache__/

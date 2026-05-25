@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DUM-E Catch Playground — AI Input</title>
+    <link rel="stylesheet" href="styles.css">
+    <link id="lightTheme" rel="stylesheet" href="light-mode.css" disabled>
+    <link id="darkTheme" rel="stylesheet" href="dark-mode.css">
+    <link rel="stylesheet" href="ai-cameras.css">
+  </head>
+  <body data-theme="dark">
+    <main class="ai-dataset-frame" aria-label="Multi-view visual model input">
+      <section class="ai-camera-grid" aria-label="Synchronized camera feeds">
+        <article class="camera-card">
+          <canvas data-camera="profile" aria-label="camera_profile"></canvas>
+        </article>
+        <article class="camera-card">
+          <canvas data-camera="top" aria-label="camera_top"></canvas>
+        </article>
+        <article class="camera-card">
+          <canvas data-camera="rear" aria-label="camera_rear"></canvas>
+        </article>
+        <article class="camera-card">
+          <canvas data-camera="hoop" aria-label="camera_dum_e"></canvas>
+        </article>
+        <article class="camera-card">
+          <canvas data-camera="left" aria-label="camera_left"></canvas>
+        </article>
+        <article class="camera-card">
+          <canvas data-camera="oblique" aria-label="camera_oblique"></canvas>
+        </article>
+      </section>
+    </main>
+
+    <script src="ai-cameras.js"></script>
+  </body>
+</html>
