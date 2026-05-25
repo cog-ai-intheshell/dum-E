@@ -2,6 +2,11 @@
 .venv/
 model/artifacts/
 generated_dataset*/
+requirements.txt
+dataset_generation/
+model/
+server/
+start_server.sh
 __pycache__/
 **/__pycache__/
 *.py[cod]
