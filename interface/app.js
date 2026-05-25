@@ -374,9 +374,8 @@ function toggleTheme() {
 }
 
 function readStoredTheme() {
-  return (localStorage.getItem("dum-e-playground-theme") || localStorage.getItem("basketball-simulator-theme")) === "dark"
-    ? "dark"
-    : "light";
+  const storedTheme = localStorage.getItem("dum-e-playground-theme") || localStorage.getItem("basketball-simulator-theme");
+  return storedTheme === "light" ? "light" : "dark";
 }
 
 function readStoredWindVisualizationMode() {
